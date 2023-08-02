@@ -4,11 +4,22 @@ using UnityEngine;
 
 public class GamePiece : MonoBehaviour
 {
-    [SerializeField] private int xIndex;
-    [SerializeField] private int yIndex;
+    public int xIndex;
+    public int yIndex;
 
     private Board m_board;
     bool m_isMoving = false;
+
+    public enum MatchValue
+    {
+        Blue,
+        Green,
+        Pink,
+        Purple,
+        Red,
+        Yellow
+    }
+    public MatchValue matchValue;
 
     // Start is called before the first frame update
     void Start()
@@ -71,4 +82,5 @@ public class GamePiece : MonoBehaviour
         }
         m_isMoving = false;
     }
+
 }

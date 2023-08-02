@@ -249,41 +249,60 @@ public class Board : MonoBehaviour
 
         return combinedMatches.Count >= minLength ? combinedMatches : null;
     }
+    private List<GamePiece> FindMathcesAt(int x, int y, int minLength = 3)
+    {
+        List<GamePiece> horizMatches = FindHorizontalMatches(x, y, minLength);
+        List<GamePiece> vertMatches = FindVerticalMatches(x, y, minLength);
+
+        if (horizMatches == null)
+        {
+            horizMatches = new List<GamePiece>();
+        }
+        if (vertMatches == null)
+        {
+            vertMatches = new List<GamePiece>();
+        }
+
+        var combinedMatches = horizMatches.Union(vertMatches).ToList();
+        return combinedMatches;
+    }
+
     private void HighlightMatches()
     {
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                SpriteRenderer spriteRenderer = m_allTiles[i,j].GetComponent<SpriteRenderer>();
-                spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
-
-                List<GamePiece> horizMatches = FindHorizontalMatches(i, j, 3);
-                List<GamePiece> vertMatches = FindVerticalMatches(i, j, 3);
-
-                if (horizMatches == null)
-                {
-                    horizMatches = new List<GamePiece>();
-                }
-                if (vertMatches == null)
-                {
-                    vertMatches = new List<GamePiece>();
-                }
-
-                var combinedMatches = horizMatches.Union(vertMatches).ToList();
-
-                if (combinedMatches.Count > 0)
-                {
-                    foreach (GamePiece piece in combinedMatches)
-                    {
-                        spriteRenderer = m_allTiles[piece.xIndex, piece.yIndex].GetComponent<SpriteRenderer>();
-                        spriteRenderer.color = Color.red;
-                    }
-                }
+                HighlightMatchesAt(i, j);
 
             }
         }
     }
 
+    private void HighlightMatchesAt(int x, int y)
+    {
+        HighlightTileOff(x, y);
 
+        var combinedMatches = FindMathcesAt(x, y);
+
+        if (combinedMatches.Count > 0)
+        {
+            foreach (GamePiece piece in combinedMatches)
+            {
+                HighlightTileOn(piece.xIndex, piece.yIndex);
+            }
+        }
+    }
+
+    private void HighlightTileOn(int x, int y)
+    {
+        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
+        spriteRenderer.color = Color.red;
+    }
+
+    private void HighlightTileOff(int x, int y)
+    {
+        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
+        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
+    }
 }

@@ -7,7 +7,7 @@ public class Tile : MonoBehaviour
     [SerializeField] private int xIndex;
     [SerializeField] private int yIndex;
 
-    private Board board;
+    private Board m_board;
 
     // Start is called before the first frame update
     void Start()
@@ -15,10 +15,32 @@ public class Tile : MonoBehaviour
         
     }
 
-    public void Init(int x, int y, Board gameBoard)
+    public void Init(int x, int y, Board board)
     {
         xIndex = x;
         yIndex = y;
-        board = gameBoard;
+        m_board = board;
+    }
+
+    private void OnMouseDown() 
+    {
+        if (m_board != null)
+        {
+            m_board.ClickTile(this);
+        }
+    }
+    private void OnMouseEnter() 
+    {
+        if (m_board != null)
+        {
+            m_board.DragToTile(this);
+        }
+    }
+    private void OnMouseUp() 
+    {
+        if (m_board != null)
+        {
+            m_board.ReleaseTile(    );
+        }
     }
 }

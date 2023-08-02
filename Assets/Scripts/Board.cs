@@ -10,9 +10,11 @@ public class Board : MonoBehaviour
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject[] defaultGamePieces;
 
+    private Camera mainCamera;
     private Tile[,] allTiles;
     private GamePiece[,] allDefaultGamePieces;
-    private Camera mainCamera;
+    private Tile m_clickedTile;
+    private Tile m_targetTile;
 
     private void Awake() 
     {
@@ -97,6 +99,35 @@ public class Board : MonoBehaviour
             }
         }
     }
+
+    public void ClickTile(Tile tile)
+    {
+        if (m_clickedTile == null)
+        {
+            m_clickedTile = tile;
+            Debug.Log("clicked tile: " + tile.name);
+        }
+    } 
+    public void DragToTile(Tile tile)
+    {
+        if (m_clickedTile != null)
+        {
+            m_targetTile = tile;
+        }
+    } 
+    public void ReleaseTile()
+    {
+        if (m_clickedTile != null && m_targetTile != null)
+        {
+            SwitchTiles(m_clickedTile, m_targetTile);
+        }
+    } 
+    private void SwitchTiles(Tile clickedTile, Tile targetTile)
+    {
+        m_clickedTile = null;
+        m_targetTile = null;
+    }
+
 
 
 }

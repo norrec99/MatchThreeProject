@@ -31,7 +31,7 @@ public class Board : MonoBehaviour
         SetupTiles();
         SetupCamera();
         FillRandom();
-        HighlightMatches();
+        // HighlightMatches();
     }
 
     private void SetupTiles()
@@ -141,11 +141,32 @@ public class Board : MonoBehaviour
     } 
     private void SwitchTiles(Tile clickedTile, Tile targetTile)
     {
+        StartCoroutine(SwitchTilesRoutine(clickedTile, targetTile));
+    }
+    private IEnumerator SwitchTilesRoutine(Tile clickedTile, Tile targetTile)
+    {
         GamePiece clickedPiece = m_allDefaultGamePieces[clickedTile.xIndex, clickedTile.yIndex];
         GamePiece targetPiece = m_allDefaultGamePieces[targetTile.xIndex, targetTile.yIndex];
+        if (targetPiece != null && clickedPiece != null)
+        {
+            clickedPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
+            targetPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
 
-        clickedPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
-        targetPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
+            yield return new WaitForSeconds(swapTime);
+
+            List<GamePiece> clickedPieceMatches = FindMatchesAt(clickedTile.xIndex, clickedTile.yIndex);
+            List<GamePiece> targetPieceMatches = FindMatchesAt(targetTile.xIndex, targetTile.yIndex);
+
+            if (targetPieceMatches.Count == 0 && clickedPieceMatches.Count == 0)
+            {
+                clickedPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
+                targetPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
+            }
+
+            yield return new WaitForSeconds(swapTime);
+            HighlightMatchesAt(clickedPiece.xIndex, clickedPiece.yIndex);
+            HighlightMatchesAt(targetTile.xIndex, targetTile.yIndex);
+        }
     }
 
     private bool IsNextTo(Tile start, Tile end)
@@ -249,7 +270,7 @@ public class Board : MonoBehaviour
 
         return combinedMatches.Count >= minLength ? combinedMatches : null;
     }
-    private List<GamePiece> FindMathcesAt(int x, int y, int minLength = 3)
+    private List<GamePiece> FindMatchesAt(int x, int y, int minLength = 3)
     {
         List<GamePiece> horizMatches = FindHorizontalMatches(x, y, minLength);
         List<GamePiece> vertMatches = FindVerticalMatches(x, y, minLength);
@@ -283,7 +304,7 @@ public class Board : MonoBehaviour
     {
         HighlightTileOff(x, y);
 
-        var combinedMatches = FindMathcesAt(x, y);
+        var combinedMatches = FindMatchesAt(x, y);
 
         if (combinedMatches.Count > 0)
         {
@@ -303,6 +324,6 @@ public class Board : MonoBehaviour
     private void HighlightTileOff(int x, int y)
     {
         SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
-        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
+        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, spriteRenderer.color.a);
     }
 }

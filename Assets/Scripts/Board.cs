@@ -7,12 +7,13 @@ public class Board : MonoBehaviour
     [SerializeField] private int width;
     [SerializeField] private int height;
     [SerializeField] private int borderSize;
+    [SerializeField] private float swapTime;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject[] defaultGamePieces;
 
     private Camera mainCamera;
-    private Tile[,] allTiles;
-    private GamePiece[,] allDefaultGamePieces;
+    private Tile[,] m_allTiles;
+    private GamePiece[,] m_allDefaultGamePieces;
     private Tile m_clickedTile;
     private Tile m_targetTile;
 
@@ -24,8 +25,8 @@ public class Board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        allTiles = new Tile[width,height];
-        allDefaultGamePieces = new GamePiece[width,height];
+        m_allTiles = new Tile[width,height];
+        m_allDefaultGamePieces = new GamePiece[width,height];
         SetupTiles();
         SetupCamera();
         FillRandom();
@@ -41,9 +42,9 @@ public class Board : MonoBehaviour
                 tile.name = $"Tile {i}, {j}";
                 tile.transform.SetParent(transform);
 
-                allTiles[i,j] = tile.GetComponent<Tile>();
+                m_allTiles[i,j] = tile.GetComponent<Tile>();
 
-                allTiles[i,j].Init(i, j, this);
+                m_allTiles[i,j].Init(i, j, this);
 
             }
         }
@@ -71,7 +72,7 @@ public class Board : MonoBehaviour
         return defaultGamePieces[randomIdx];
     }
 
-    private void PlaceGamePiece(GamePiece gamePiece, int x, int y)
+    public void PlaceGamePiece(GamePiece gamePiece, int x, int y)
     {
         if (gamePiece == null)
         {
@@ -81,7 +82,16 @@ public class Board : MonoBehaviour
 
         gamePiece.transform.position = new Vector3(x, y, 0);
         gamePiece.transform.rotation = Quaternion.identity;
+        if (IsWithinBounds(x,y))
+        {
+            m_allDefaultGamePieces[x,y] = gamePiece;
+        }
         gamePiece.SetCoord(x,y);
+    }
+
+    private bool IsWithinBounds(int x, int y)
+    {
+        return (x >= 0 && x < width && y >= 0 && y < height);
     }
 
     private void FillRandom()
@@ -94,7 +104,9 @@ public class Board : MonoBehaviour
 
                 if (randomPiece != null)
                 {
+                    randomPiece.GetComponent<GamePiece>().Init(this);
                     PlaceGamePiece(randomPiece.GetComponent<GamePiece>(), i, j);
+                    randomPiece.transform.SetParent(transform);
                 }
             }
         }
@@ -110,7 +122,7 @@ public class Board : MonoBehaviour
     } 
     public void DragToTile(Tile tile)
     {
-        if (m_clickedTile != null)
+        if (m_clickedTile != null && IsNextTo(tile, m_clickedTile))
         {
             m_targetTile = tile;
         }
@@ -121,11 +133,30 @@ public class Board : MonoBehaviour
         {
             SwitchTiles(m_clickedTile, m_targetTile);
         }
+
+        m_clickedTile = null;
+        m_targetTile = null;
     } 
     private void SwitchTiles(Tile clickedTile, Tile targetTile)
     {
-        m_clickedTile = null;
-        m_targetTile = null;
+        GamePiece clickedPiece = m_allDefaultGamePieces[clickedTile.xIndex, clickedTile.yIndex];
+        GamePiece targetPiece = m_allDefaultGamePieces[targetTile.xIndex, targetTile.yIndex];
+
+        clickedPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
+        targetPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
+    }
+
+    private bool IsNextTo(Tile start, Tile end)
+    {
+        if (Mathf.Abs(start.xIndex - end.xIndex) == 1 && start.yIndex == end.yIndex)
+        {
+            return true;
+        }
+        if (Mathf.Abs(start.yIndex - end.yIndex) == 1 && start.xIndex == end.xIndex)
+        {
+            return true;
+        }
+        return false;
     }
 
 

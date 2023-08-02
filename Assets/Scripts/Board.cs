@@ -18,20 +18,21 @@ public class Board : MonoBehaviour
     private Tile m_clickedTile;
     private Tile m_targetTile;
 
-    private void Awake() 
+    private void Awake()
     {
-        mainCamera = Camera.main;    
+        mainCamera = Camera.main;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        m_allTiles = new Tile[width,height];
-        m_allDefaultGamePieces = new GamePiece[width,height];
+        m_allTiles = new Tile[width, height];
+        m_allDefaultGamePieces = new GamePiece[width, height];
         SetupTiles();
         SetupCamera();
         FillRandom();
-        // HighlightMatches();
+        // ClearPieceAt(3,4);
+        // ClearPieceAt(1,2);
     }
 
     private void SetupTiles()
@@ -44,9 +45,9 @@ public class Board : MonoBehaviour
                 tile.name = $"Tile {i}, {j}";
                 tile.transform.SetParent(transform);
 
-                m_allTiles[i,j] = tile.GetComponent<Tile>();
+                m_allTiles[i, j] = tile.GetComponent<Tile>();
 
-                m_allTiles[i,j].Init(i, j, this);
+                m_allTiles[i, j].Init(i, j, this);
 
             }
         }
@@ -57,8 +58,8 @@ public class Board : MonoBehaviour
         mainCamera.transform.position = new Vector3((float)(width - 1) / 2f, (float)(height - 1) / 2f, -10f);
 
         float aspectRatio = (float)Screen.width / (float)Screen.height;
-        float verticalSize = (float)height / 2f + (float) borderSize;
-        float horizontalSize = ((float)width / 2f + (float) borderSize) + aspectRatio;
+        float verticalSize = (float)height / 2f + (float)borderSize;
+        float horizontalSize = ((float)width / 2f + (float)borderSize) + aspectRatio;
         mainCamera.orthographicSize = (verticalSize > horizontalSize) ? verticalSize : horizontalSize;
     }
 
@@ -84,11 +85,11 @@ public class Board : MonoBehaviour
 
         gamePiece.transform.position = new Vector3(x, y, 0);
         gamePiece.transform.rotation = Quaternion.identity;
-        if (IsWithinBounds(x,y))
+        if (IsWithinBounds(x, y))
         {
-            m_allDefaultGamePieces[x,y] = gamePiece;
+            m_allDefaultGamePieces[x, y] = gamePiece;
         }
-        gamePiece.SetCoord(x,y);
+        gamePiece.SetCoord(x, y);
     }
 
     private bool IsWithinBounds(int x, int y)
@@ -121,14 +122,14 @@ public class Board : MonoBehaviour
             m_clickedTile = tile;
             Debug.Log("clicked tile: " + tile.name);
         }
-    } 
+    }
     public void DragToTile(Tile tile)
     {
         if (m_clickedTile != null && IsNextTo(tile, m_clickedTile))
         {
             m_targetTile = tile;
         }
-    } 
+    }
     public void ReleaseTile()
     {
         if (m_clickedTile != null && m_targetTile != null)
@@ -138,7 +139,7 @@ public class Board : MonoBehaviour
 
         m_clickedTile = null;
         m_targetTile = null;
-    } 
+    }
     private void SwitchTiles(Tile clickedTile, Tile targetTile)
     {
         StartCoroutine(SwitchTilesRoutine(clickedTile, targetTile));
@@ -162,10 +163,16 @@ public class Board : MonoBehaviour
                 clickedPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
                 targetPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
             }
+            else
+            {
+                yield return new WaitForSeconds(swapTime);
+                ClearPieceAt(clickedPieceMatches);
+                ClearPieceAt(targetPieceMatches);
 
-            yield return new WaitForSeconds(swapTime);
-            HighlightMatchesAt(clickedPiece.xIndex, clickedPiece.yIndex);
-            HighlightMatchesAt(targetTile.xIndex, targetTile.yIndex);
+                // HighlightMatchesAt(clickedPiece.xIndex, clickedPiece.yIndex);
+                // HighlightMatchesAt(targetTile.xIndex, targetTile.yIndex);
+            }
+
         }
     }
 
@@ -207,24 +214,31 @@ public class Board : MonoBehaviour
 
         for (int i = 1; i < maxValue - 1; i++)
         {
-           nextX = startX + (int)Mathf.Clamp(searchDirection.x, -1, 1) * i; 
-           nextY = startY + (int)Mathf.Clamp(searchDirection.y, -1, 1) * i;
+            nextX = startX + (int)Mathf.Clamp(searchDirection.x, -1, 1) * i;
+            nextY = startY + (int)Mathf.Clamp(searchDirection.y, -1, 1) * i;
 
-           if (!IsWithinBounds(nextX, nextY))
-           {
+            if (!IsWithinBounds(nextX, nextY))
+            {
                 break;
-           } 
+            }
 
-           GamePiece nextPiece = m_allDefaultGamePieces[nextX, nextY];
-
-           if (nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece))
-           {
-                matches.Add(nextPiece);
-           }
-           else
-           {
+            GamePiece nextPiece = m_allDefaultGamePieces[nextX, nextY];
+            if (nextPiece == null)
+            {
                 break;
-           }
+            }
+            else
+            {
+                if (nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece))
+                {
+                    matches.Add(nextPiece);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
         }
 
         if (matches.Count >= minLength)
@@ -325,5 +339,34 @@ public class Board : MonoBehaviour
     {
         SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
         spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, spriteRenderer.color.a);
+    }
+    private void ClearPieceAt(int x, int y)
+    {
+        GamePiece pieceToClear = m_allDefaultGamePieces[x, y];
+
+        if (pieceToClear != null)
+        {
+            m_allDefaultGamePieces[x, y] = null;
+            Destroy(pieceToClear.gameObject);
+        }
+
+        HighlightTileOff(x, y);
+    }
+    private void ClearBoard()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                ClearPieceAt(i, j);
+            }
+        }
+    }
+    private void ClearPieceAt(List<GamePiece> gamePieces)
+    {
+        foreach (GamePiece piece in gamePieces)
+        {
+            ClearPieceAt(piece.xIndex, piece.yIndex);
+        }
     }
 }

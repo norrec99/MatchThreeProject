@@ -30,7 +30,7 @@ public class Board : MonoBehaviour
         SetupTiles();
         SetupCamera();
         FillBoard(10, 1f);
-        // HighlightMatches();
+        HighlightMatches();
     }
 
     private void SetupTiles()
@@ -222,6 +222,7 @@ public class Board : MonoBehaviour
 
         }
 
+
         if (matches.Count >= minLength)
         {
             return matches;
@@ -305,7 +306,25 @@ public class Board : MonoBehaviour
         {
             foreach (GamePiece piece in combinedMatches)
             {
-                HighlightTileOn(piece.xIndex, piece.yIndex);
+                switch (combinedMatches.Count)
+                {
+                    case 2:
+                        piece.GetComponent<SpriteRenderer>().sprite = piece.GetSprites()[0];
+                        break;
+                    case 3:
+                        piece.GetComponent<SpriteRenderer>().sprite = piece.GetSprites()[1];
+                        break;
+                    case 4:
+                        piece.GetComponent<SpriteRenderer>().sprite = piece.GetSprites()[2];
+                        break;
+                    case 5:
+                        piece.GetComponent<SpriteRenderer>().sprite = piece.GetSprites()[3];
+                        break;
+                    case 6:
+                        piece.GetComponent<SpriteRenderer>().sprite = piece.GetSprites()[4];
+                        break;
+                }
+                // HighlightTileOn(piece.xIndex, piece.yIndex);
             }
         }
     }
@@ -412,6 +431,7 @@ public class Board : MonoBehaviour
     {
         yield return new WaitForSeconds(swapTime);
         FillBoard(10, 0.2f);
+        HighlightMatches();
         yield return null;
     }
 }

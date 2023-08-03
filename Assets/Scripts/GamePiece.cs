@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GamePiece : MonoBehaviour
 {
     public int xIndex;
     public int yIndex;
-    public bool m_isMoving = false;
-
+    [SerializeField] private Sprite[] sprites;
     private Board m_board;
+    private bool m_isMoving = false;
 
     public enum MatchValue
     {
@@ -64,6 +65,11 @@ public class GamePiece : MonoBehaviour
             yield return null;
         }
         m_isMoving = false;
+    }
+
+    public Sprite[] GetSprites()
+    {
+        return sprites;
     }
 
 }

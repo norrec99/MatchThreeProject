@@ -99,3 +99,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   xIndex: 0
   yIndex: 0
+  sprites:
+  - {fileID: 21300000, guid: a2bf04a6cc593de40ade5dd86299991f, type: 3}
+  - {fileID: 21300000, guid: 03204c1968113004f80245518979bf58, type: 3}
+  - {fileID: 21300000, guid: 286e0b2d75b11c74f9a992f347f31af8, type: 3}
+  - {fileID: 21300000, guid: d106f9f86fa5c94469467f89431e3d8f, type: 3}
+  matchValue: 0

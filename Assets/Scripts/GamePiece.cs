@@ -6,9 +6,9 @@ public class GamePiece : MonoBehaviour
 {
     public int xIndex;
     public int yIndex;
+    public bool m_isMoving = false;
 
     private Board m_board;
-    bool m_isMoving = false;
 
     public enum MatchValue
     {

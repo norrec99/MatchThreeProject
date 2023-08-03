@@ -29,13 +29,6 @@ public class Tile : MonoBehaviour
             m_board.ClickTile(this);
         }
     }
-    private void OnMouseEnter() 
-    {
-        if (m_board != null)
-        {
-            m_board.DragToTile(this);
-        }
-    }
     private void OnMouseUp() 
     {
         if (m_board != null)

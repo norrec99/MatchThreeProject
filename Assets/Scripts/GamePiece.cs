@@ -21,23 +21,6 @@ public class GamePiece : MonoBehaviour
     }
     public MatchValue matchValue;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    private void Update() 
-    {
-        // if (Input.GetKeyDown(KeyCode.RightArrow))
-        // {
-        //     Move((int)transform.position.x + 1, (int)transform.position.y, 0.5f);
-        // }
-        // if (Input.GetKeyDown(KeyCode.LeftArrow))
-        // {
-        //     Move((int)transform.position.x - 1, (int)transform.position.y, 0.5f);
-        // }
-    }
     public void Init(Board board)
     {
         m_board = board;

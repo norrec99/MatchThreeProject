@@ -16,7 +16,6 @@ public class Board : MonoBehaviour
     private Tile[,] m_allTiles;
     private GamePiece[,] m_allDefaultGamePieces;
     private Tile m_clickedTile;
-    private Tile m_targetTile;
 
     private void Awake()
     {
@@ -130,22 +129,6 @@ public class Board : MonoBehaviour
         }
         return null;
     }
-    private bool HasMatchOnFill(int x, int y, int minLength = 2)
-    {
-        List<GamePiece> leftMatches = FindMatches(x, y, new Vector2(-1, 0), minLength);
-        List<GamePiece> downwardMatches = FindMatches(x, y, new Vector2(0, -1), minLength);
-
-        if (leftMatches == null)
-        {
-            leftMatches = new List<GamePiece>();
-        }
-        if (downwardMatches == null)
-        {
-            downwardMatches = new List<GamePiece>();
-        }
-
-        return leftMatches.Count > 0 || downwardMatches.Count > 0;
-    }
     public void ClickTile(Tile tile)
     {
         if (m_clickedTile == null)
@@ -154,31 +137,18 @@ public class Board : MonoBehaviour
             Debug.Log("clicked tile: " + tile.name);
             List<GamePiece> clickedPieceMatches = FindMatchesAt(tile.xIndex, tile.yIndex);
             
-            BlastTiles(m_clickedTile, m_targetTile);
-        }
-    }
-    public void DragToTile(Tile tile)
-    {
-        if (m_clickedTile != null && IsNextTo(tile, m_clickedTile))
-        {
-            m_targetTile = tile;
+            BlastTiles(m_clickedTile);
         }
     }
     public void ReleaseTile()
     {
-        if (m_clickedTile != null && m_targetTile != null)
-        {
-            BlastTiles(m_clickedTile, m_targetTile);
-        }
-
         m_clickedTile = null;
-        m_targetTile = null;
     }
-    private void BlastTiles(Tile clickedTile, Tile targetTile)
+    private void BlastTiles(Tile clickedTile)
     {
-        StartCoroutine(BlastTilesRoutine(clickedTile, targetTile));
+        StartCoroutine(BlastTilesRoutine(clickedTile));
     }
-    private IEnumerator BlastTilesRoutine(Tile clickedTile, Tile targetTile)
+    private IEnumerator BlastTilesRoutine(Tile clickedTile)
     {
         GamePiece clickedPiece = m_allDefaultGamePieces[clickedTile.xIndex, clickedTile.yIndex];
         if (clickedPiece != null)
@@ -198,19 +168,6 @@ public class Board : MonoBehaviour
             }
 
         }
-    }
-
-    private bool IsNextTo(Tile start, Tile end)
-    {
-        if (Mathf.Abs(start.xIndex - end.xIndex) == 1 && start.yIndex == end.yIndex)
-        {
-            return true;
-        }
-        if (Mathf.Abs(start.yIndex - end.yIndex) == 1 && start.xIndex == end.xIndex)
-        {
-            return true;
-        }
-        return false;
     }
 
     private List<GamePiece> FindMatches(int startX, int startY, Vector2 searchDirection, int minLength = 2)

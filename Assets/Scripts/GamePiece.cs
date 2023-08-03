@@ -74,7 +74,7 @@ public class GamePiece : MonoBehaviour
                 break;
             }
             elapsedTime += Time.deltaTime;
-            float t = elapsedTime / timeToMove;
+            float t = Mathf.Clamp(elapsedTime / timeToMove, 0f, 1f);
 
             transform.position = Vector3.Lerp(startPosition, destination, t);
 

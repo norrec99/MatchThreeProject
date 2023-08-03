@@ -407,7 +407,10 @@ public class Board : MonoBehaviour
     {
         foreach (GamePiece piece in gamePieces)
         {
-            ClearPieceAt(piece.xIndex, piece.yIndex);
+            if (piece != null)
+            {
+                ClearPieceAt(piece.xIndex, piece.yIndex);
+            }
         }
     }
     private List<GamePiece> CollapseColumn(int column, float collapseTime = 0.1f)
@@ -422,7 +425,7 @@ public class Board : MonoBehaviour
                 {
                     if (m_allDefaultGamePieces[column, j] != null)
                     {
-                        m_allDefaultGamePieces[column, j].Move(column, j, collapseTime);
+                        m_allDefaultGamePieces[column, j].Move(column, i, collapseTime);
                         m_allDefaultGamePieces[column, i] = m_allDefaultGamePieces[column, j];
                         m_allDefaultGamePieces[column, i].SetCoord(column, i);
 
